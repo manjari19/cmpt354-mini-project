@@ -1,0 +1,300 @@
+-- Library DB Sample Data
+-- Inserting sample data into the library DB for testing purposes
+
+--populating Members table
+    --don't need to add memberID as it's set to autoincrement
+INSERT INTO Members (Name, Address, DateOfBirth, DateOfRegistration) 
+VALUES 
+('Alice Johnson', '123 Main St, Cityville', '1990-05-15', '2023-01-10'),
+('Bob Smith', '456 Oak Ave, Townsville', '1985-09-20', '2023-04-15'),
+('Charlie Brown', '789 Pine Rd, Villageville', '2000-12-01', '2023-07-20'),
+('Diana Prince', '321 Elm St, Metropolis', '1995-07-30', '2023-10-05'),
+('Ethan Hunt', '654 Maple Dr, Gotham', '1988-11-10', '2024-01-12'),
+('Fiona Gallagher', '987 Cedar Ln, Star City', '1992-03-05', '2024-03-18'),
+('George Bailey', '246 Birch Blvd, Smallville', '1980-08-15', '2024-05-22'),
+('Hannah Montana', '135 Spruce St, Riverdale', '1998-02-25', '2024-07-30'),
+('Ian Malcolm', '864 Willow Way, Hill Valley', '1975-04-12', '2024-09-14'),
+('Julia Roberts', '579 Aspen Ct, Emerald City', '1983-06-18', '2024-11-02'),
+('Kevin McCallister', '246 Oakwood Dr, Sunnydale', '1995-12-05', '2025-01-08'),
+('Laura Croft', '135 Pinecrest Ln, Twin Peaks', '1987-09-30', '2025-03-15'),
+('Michael Scott', '864 Cedarwood St, Hill Valley', '1978-03-15', '2025-05-20'),
+('Nancy Drew', '579 Birchwood Ave, Riverdale', '1992-07-20', '2025-07-25'),
+('Oscar Wilde', '246 Maplewood Blvd, Gotham', '1985-11-10', '2025-09-10'),
+('Pam Beesly', '135 Sprucewood Ct, Star City', '1990-04-25', '2025-11-18'),
+('Quentin Tarantino', '864 Willowbrook Dr, Smallville', '1963-03-27', '2026-01-05'),
+('Rachel Green', '579 Aspenwood Ln, Metropolis', '1985-05-05', '2026-02-14'),
+('Steve Rogers', '246 Oakridge St, Cityville', '1968-07-04', '2026-03-22'),
+('Tina Fey', '135 Pinewood Ave, Townsville', '1970-05-18', '2026-05-01'),
+('Uma Thurman', '789 Birch Ct, Central City', '1993-08-22', '2026-06-10'),
+('Victor Hugo', '321 Cedar Ave, Coast City', '1978-11-30', '2026-07-15');
+
+--populating Items table
+    --don't need to add itemID either as it's set to autoincrement
+    --"category type (print book, online book, magazine, scientific journal, records, etc.)"
+INSERT INTO Items (Name, Author, Publisher, DateOfPublication, Category)
+VALUES
+--print books
+('The Great Gatsby', 'F. Scott Fitzgerald', 'Scribner', '1925-04-10', 'print book'),
+('To Kill a Mockingbird', 'Harper Lee', 'J.B. Lippincott & Co.', '1960-07-11', 'print book'),
+('1984', 'George Orwell', 'Secker & Warburg', '1949-06-08', 'print book'),
+('Pride and Prejudice', 'Jane Austen', 'T. Egerton, Whitehall', '1813-01-28', 'print book'),
+('The Catcher in the Rye', 'J.D. Salinger', 'Little, Brown and Company', '1951-07-16', 'print book'),
+('The Hobbit', 'J.R.R. Tolkien', 'George Allen & Unwin', '1937-09-21', 'print book'),
+('Moby-Dick', 'Herman Melville', 'Harper & Brothers', '1851-10-18', 'print book'),
+('War and Peace', 'Leo Tolstoy', 'The Russian Messenger', '1869-01-01', 'print book'),
+('The Odyssey', 'Homer', 'Ancient Greece', '0800-01-01', 'print book'),
+('Crime and Punishment', 'Fyodor Dostoevsky', 'The Russian Messenger', '1866-01-01', 'print book'),
+--online books
+('The Lord of the Rings (E-book Edition)', 'J.R.R. Tolkien', 'George Allen & Unwin', '1954-07-29', 'online book'),
+('The Alchemist (E-book Edition)', 'Paulo Coelho', 'HarperOne', '1988-01-01', 'online book'),
+('The Da Vinci Code (E-book Edition)', 'Dan Brown', 'Doubleday', '2003-03-18', 'online book'),
+('The Hunger Games (E-book Edition)', 'Suzanne Collins', 'Scholastic Press', '2008-09-14', 'online book'),
+--magazines
+('National Geographic - March Issue', 'National Geographic Staff', 'National Geographic Society', '2024-03-01', 'magazine'),
+('TIME Magazine - Weekly Edition', 'TIME Staff', 'Time USA, LLC', '2024-05-10', 'magazine'),
+('The Economist - Global Affairs Edition', 'The Economist Staff', 'The Economist Group', '2024-06-15', 'magazine'),
+('Vogue - Fall Fashion Issue', 'Vogue Editorial Team', 'Condé Nast', '2024-09-01', 'magazine'),
+--scientific journals
+('Nature - Volume 600, Issue 1', 'Nature Editorial Team', 'Springer Nature', '2024-01-01', 'scientific journal'),
+('The Lancet - Volume 400, Issue 4', 'The Lancet Editorial Team', 'Elsevier', '2024-04-05', 'scientific journal'),
+--records
+('Abbey Road', 'The Beatles', 'Apple Records', '1969-09-26', 'records'),
+('Thriller', 'Michael Jackson', 'Epic Records', '1982-11-30', 'records'),
+('Back in Black', 'AC/DC', 'Atlantic Records', '1980-07-25', 'records'),
+('Rumours', 'Fleetwood Mac', 'Warner Bros. Records', '1977-02-04', 'records');
+
+--populating Copies table
+    --don't need to add copyID as it's set to autoincrement
+    --exactly 2 copies per item (48 total): odd CopyIDs = older copy, even CopyIDs = newer copy
+    --this split matters later: Borrows only uses odd CopyIDs, Donations only uses even CopyIDs
+INSERT INTO Copies (ItemID, DateOfAcquisition)
+VALUES
+(1, '2023-01-15'), (1, '2024-06-01'),
+(2, '2023-02-10'), (2, '2025-02-20'),
+(3, '2023-03-05'), (3, '2024-07-12'),
+(4, '2023-04-18'), (4, '2026-01-08'),
+(5, '2023-05-22'), (5, '2025-06-18'),
+(6, '2023-06-30'), (6, '2024-08-14'),
+(7, '2023-07-25'), (7, '2025-09-02'),
+(8, '2023-08-19'), (8, '2024-09-27'),
+(9, '2023-09-10'), (9, '2026-02-15'),
+(10, '2023-10-05'), (10, '2025-11-20'),
+(11, '2023-11-12'), (11, '2024-12-03'),
+(12, '2024-01-15'), (12, '2025-07-30'),
+(13, '2024-02-10'), (13, '2026-03-05'),
+(14, '2024-03-05'), (14, '2025-04-22'),
+(15, '2024-04-12'), (15, '2026-04-18'),
+(16, '2024-05-18'), (16, '2025-05-25'),
+(17, '2024-06-22'), (17, '2026-05-30'),
+(18, '2024-07-30'), (18, '2025-08-15'),
+(19, '2024-08-15'), (19, '2026-06-10'),
+(20, '2024-09-05'), (20, '2025-10-22'),
+(21, '2024-10-12'), (21, '2026-07-01'),
+(22, '2024-11-18'), (22, '2025-12-10'),
+(23, '2024-12-25'), (23, '2026-07-20'),
+(24, '2025-01-15'), (24, '2026-08-01');
+
+--populating Holds table
+    --don't need to add memberID and itemID as they are already in the Members and Items tables
+    --one hold per item (1-24), rotating through members, spread across 2023-2026
+INSERT INTO Holds (MemberID, ItemID, DateOfHold, DateOfReady)
+VALUES
+(1, 1, '2023-02-05', '2023-02-10'),
+(2, 2, '2023-04-12', NULL),
+(3, 3, '2023-06-18', '2023-06-25'),
+(4, 4, '2023-08-22', NULL),
+(5, 5, '2023-10-30', '2023-11-05'),
+(6, 6, '2024-01-15', NULL),
+(7, 7, '2024-03-20', '2024-03-27'),
+(8, 8, '2024-05-25', NULL),
+(9, 9, '2024-07-30', '2024-08-06'),
+(10, 10, '2024-09-14', NULL),
+(11, 11, '2024-11-20', '2024-11-27'),
+(12, 12, '2025-01-10', NULL),
+(13, 13, '2025-03-15', '2025-03-22'),
+(14, 14, '2025-05-20', NULL),
+(15, 15, '2025-07-25', '2025-08-01'),
+(16, 16, '2025-09-10', NULL),
+(17, 17, '2025-11-18', '2025-11-25'),
+(18, 18, '2026-01-05', NULL),
+(19, 19, '2026-02-14', '2026-02-21'),
+(20, 20, '2026-03-22', NULL),
+(21, 21, '2026-05-01', '2026-05-08'),
+(22, 22, '2026-06-10', NULL),
+(1, 23, '2026-07-15', '2026-07-22'),
+(2, 24, '2026-08-01', NULL);
+
+--populating Borrows table
+    --uses only ODD CopyIDs (1,3,5...47) so Donations (which uses even CopyIDs) never overlaps
+    --"still checked out" (NULL return) rows are all recent 2026 dates, since a copy
+    --checked out since 2023 and never returned would look like a data error, not real activity
+INSERT INTO Borrows (BorrowID, MemberID, CopyID, DateOfCheckout, DateOfReturn, Extension)
+VALUES
+--returned, spread 2023-2026
+(1, 1, 1, '2023-02-01', '2023-02-15', 0),
+(2, 2, 3, '2023-05-10', '2023-05-31', 7),
+(3, 3, 5, '2023-08-20', '2023-09-10', 14),
+(4, 4, 7, '2024-01-15', '2024-02-05', 7),
+(5, 5, 9, '2024-04-22', '2024-05-06', 0),
+(6, 6, 11, '2024-07-30', '2024-08-20', 14),
+(7, 7, 13, '2024-10-14', '2024-11-04', 7),
+(8, 8, 15, '2025-01-08', '2025-01-22', 0),
+(9, 9, 17, '2025-04-15', '2025-05-06', 14),
+(10, 10, 19, '2025-07-20', '2025-08-03', 0),
+(11, 11, 21, '2025-10-25', '2025-11-15', 7),
+(12, 12, 23, '2026-01-10', '2026-01-24', 0),
+--still checked out, all recent (2026)
+(13, 13, 25, '2026-02-05', NULL, 0),
+(14, 14, 27, '2026-02-18', NULL, 7),
+(15, 15, 29, '2026-03-10', NULL, 0),
+(16, 16, 31, '2026-03-25', NULL, 14),
+(17, 17, 33, '2026-04-12', NULL, 0),
+(18, 18, 35, '2026-05-01', NULL, 7),
+(19, 19, 37, '2026-05-20', NULL, 0),
+(20, 20, 39, '2026-06-08', NULL, 14),
+(21, 21, 41, '2026-06-25', NULL, 0),
+(22, 22, 43, '2026-07-10', NULL, 7),
+(23, 1, 45, '2026-07-22', NULL, 0),
+(24, 2, 47, '2026-08-01', NULL, 0);
+
+--populating Donations table
+    --uses only EVEN CopyIDs (2,4,6...48), separate from Borrows' odd-CopyID pool
+    --DateOfDonation matches each copy's DateOfAcquisition, since the copy entered
+    --the collection through the donation itself
+INSERT INTO Donations (CopyID, MemberID, DateOfDonation)
+VALUES
+(2, 1, '2024-06-01'),
+(4, 2, '2025-02-20'),
+(6, 3, '2024-07-12'),
+(8, 4, '2026-01-08'),
+(10, 5, '2025-06-18'),
+(12, 6, '2024-08-14'),
+(14, 7, '2025-09-02'),
+(16, 8, '2024-09-27'),
+(18, 9, '2026-02-15'),
+(20, 10, '2025-11-20'),
+(22, 11, '2024-12-03'),
+(24, 12, '2025-07-30'),
+(26, 13, '2026-03-05'),
+(28, 14, '2025-04-22'),
+(30, 15, '2026-04-18'),
+(32, 16, '2025-05-25'),
+(34, 17, '2026-05-30'),
+(36, 18, '2025-08-15'),
+(38, 19, '2026-06-10'),
+(40, 20, '2025-10-22'),
+(42, 21, '2026-07-01'),
+(44, 22, '2025-12-10'),
+(46, 1, '2026-07-20'),
+(48, 2, '2026-08-01');
+
+--populating FutureAcquisitions table
+    --FutureID is not autoincrement, so needs to be set explicitly
+INSERT INTO FutureAcquisitions (FutureID, Name, Author, Publisher, DateOfPublication, Category, Price)
+VALUES
+(1, 'The Silent Patient 2', 'Alex Michaelides', 'Celadon Books', '2026-09-15', 'print book', 24.99),
+(2, 'Atomic Habits (Digital Edition)', 'James Clear', 'Avery', '2018-10-16', 'online book', 14.99),
+(3, 'Scientific American - October Issue', 'Scientific American Staff', 'Springer Nature', '2026-10-01', 'magazine', 8.99),
+(4, 'Cell - Volume 190', 'Various Authors', 'Cell Press', '2026-11-01', 'scientific journal', 45.00),
+(5, 'Fleetwood Mac Live', 'Fleetwood Mac', 'Warner Bros. Records', '2026-12-01', 'records', 29.99),
+(6, 'Project Hail Mary', 'Andy Weir', 'Ballantine Books', '2021-05-04', 'print book', 19.99),
+(7, 'The Midnight Library (E-book)', 'Matt Haig', 'Canongate Books', '2020-08-13', 'online book', 12.99),
+(8, 'National Geographic - Winter Special', 'National Geographic Staff', 'National Geographic Society', '2026-12-15', 'magazine', 9.99),
+(9, 'Nature - Volume 620', 'Nature Editorial Team', 'Springer Nature', '2026-08-15', 'scientific journal', 32.00),
+(10, 'Random Access Memories', 'Daft Punk', 'Columbia Records', '2013-05-17', 'records', 27.50);
+
+--populating Employees table
+    --don't need to add employeeID as it's set to autoincrement
+INSERT INTO Employees (Name, Address, Department, JobTitle, Salary, DateOfHire)
+VALUES
+('Karen Walsh', '12 Birch Ln, Cityville', 'Circulation', 'Head Librarian', 68000.00, '2018-03-01'),
+('David Kim', '45 Oak St, Townsville', 'Circulation', 'Librarian', 52000.00, '2020-06-15'),
+('Maria Gonzalez', '78 Pine Ave, Villageville', 'Programs', 'Events Coordinator', 48000.00, '2021-01-10'),
+('James Wu', '23 Elm Rd, Metropolis', 'IT', 'Systems Administrator', 61000.00, '2019-09-20'),
+('Sarah Patel', '56 Maple Ct, Gotham', 'Circulation', 'Librarian', 51000.00, '2022-04-05'),
+('Tom Anderson', '89 Cedar Dr, Star City', 'Administration', 'Branch Manager', 75000.00, '2015-07-22'),
+('Linda Chen', '34 Spruce Blvd, Smallville', 'Programs', 'Youth Services Librarian', 49000.00, '2021-11-30'),
+('Robert Davis', '67 Willow Way, Riverdale', 'Circulation', 'Library Assistant', 38000.00, '2023-02-14'),
+('Emily Foster', '90 Aspen St, Hill Valley', 'Administration', 'Office Manager', 45000.00, '2020-10-05'),
+('Chris Martinez', '21 Birchwood Ave, Emerald City', 'IT', 'IT Support Specialist', 47000.00, '2022-08-18');
+
+--populating Volunteers table
+    --just needs an existing MemberID; a volunteer is a member with no extra attributes
+INSERT INTO Volunteers (MemberID)
+VALUES
+(2), (4), (6), (8), (10), (12), (14), (16);
+
+--populating Rooms table
+    --don't need to add roomID as it's set to autoincrement
+INSERT INTO Rooms (Capacity, EquipmentDescription)
+VALUES
+(50, 'Projector, Sound System'),
+(30, 'Whiteboard, Projector'),
+(80, 'Stage, Sound System, Lighting'),
+(20, 'Standard Seating'),
+(40, 'Projector'),
+(60, 'Sound System, Seating for 60');
+
+--populating Events table
+    --EventID is not autoincrement, so needs to be set explicitly
+    --each event uses a unique (RoomID, Date) pair, so no two events overlap
+INSERT INTO Events (EventID, Title, RoomID, Date, StartTime, EndTime, Capacity, Type, RecommendedMinAge)
+VALUES
+(1, 'Mystery Book Club Meeting', 1, '2026-08-15', '18:00', '19:30', 25, 'book club', 12),
+(2, 'Sci-Fi Reading Circle', 2, '2026-08-20', '17:00', '18:30', 15, 'book club', 10),
+(3, 'Local Art Showcase', 3, '2026-09-05', '10:00', '16:00', 60, 'art show', 0),
+(4, 'Classic Film Night: Casablanca', 4, '2026-08-25', '19:00', '21:00', 18, 'film screening', 13),
+(5, 'Teen Poetry Workshop', 2, '2026-09-12', '15:00', '16:30', 20, 'book related event', 12),
+(6, 'Children''s Storytime', 5, '2026-08-10', '10:00', '11:00', 30, 'book related event', 3),
+(7, 'Documentary Screening: Our Oceans', 4, '2026-09-18', '18:30', '20:00', 15, 'film screening', 10),
+(8, 'Watercolor Painting Exhibit', 3, '2026-10-02', '11:00', '17:00', 50, 'art show', 0),
+(9, 'Mystery Book Club Meeting - September', 1, '2026-09-15', '18:00', '19:30', 25, 'book club', 12),
+(10, 'Author Talk: Local Historians', 6, '2026-09-25', '19:00', '20:30', 45, 'book related event', 14),
+(11, 'Classic Film Night: Vertigo', 4, '2026-10-10', '19:00', '21:00', 18, 'film screening', 13),
+(12, 'Photography Exhibition', 3, '2026-10-20', '10:00', '16:00', 55, 'art show', 0);
+
+--populating SignUps table
+INSERT INTO SignUps (EventID, MemberID, DateOfSignup)
+VALUES
+(1, 1, '2026-07-20'), (1, 3, '2026-07-25'), (1, 5, '2026-08-01'),
+(2, 2, '2026-07-28'), (2, 4, '2026-08-05'),
+(3, 6, '2026-08-10'), (3, 7, '2026-08-15'), (3, 8, '2026-08-20'),
+(4, 9, '2026-08-01'), (4, 10, '2026-08-10'),
+(5, 11, '2026-08-15'), (5, 12, '2026-08-20'),
+(6, 13, '2026-07-15'), (6, 14, '2026-07-20'), (6, 15, '2026-07-25'),
+(7, 16, '2026-08-25'), (7, 17, '2026-09-01'),
+(8, 18, '2026-09-05'), (8, 19, '2026-09-10'),
+(9, 20, '2026-08-20'), (9, 21, '2026-08-25'),
+(10, 22, '2026-09-01'), (10, 1, '2026-09-05'),
+(11, 2, '2026-09-15'), (11, 3, '2026-09-20'),
+(12, 4, '2026-09-25'), (12, 5, '2026-09-28'), (12, 6, '2026-10-01');
+
+--populating EventStaffing table
+INSERT INTO EventStaffing (EventID, EmployeeID)
+VALUES
+(1, 1), (2, 2), (3, 3), (4, 2), (5, 7), (6, 7),
+(7, 3), (8, 3), (9, 1), (10, 6), (11, 2), (12, 3);
+
+--populating EventVolunteering table
+    --MemberID must exist in Volunteers table (2,4,6,8,10,12,14,16)
+INSERT INTO EventVolunteering (EventID, MemberID, Role)
+VALUES
+(1, 2, 'Greeter'), (2, 4, 'Setup'), (3, 6, 'Greeter'), (3, 8, 'Setup'),
+(4, 10, 'Ticket Check'), (5, 12, 'Greeter'), (6, 14, 'Setup'),
+(7, 16, 'Greeter'), (8, 2, 'Cleanup'), (9, 4, 'Greeter'),
+(10, 6, 'Setup'), (11, 8, 'Greeter');
+
+--populating AssistanceRequests table
+    --AssistID is not autoincrement, so needs to be set explicitly
+INSERT INTO AssistanceRequests (AssistID, MemberID, EmployeeID, RequestText, DateOfSubmission)
+VALUES
+(1, 1, 1, 'Need help finding books on 19th century French literature', '2026-01-15'),
+(2, 3, 2, 'Where can I find the local newspaper archives?', '2026-02-20'),
+(3, 5, 5, 'Looking for large print books', '2026-03-10'),
+(4, 7, 1, 'How do I renew my library card?', '2026-04-05'),
+(5, 9, 2, 'Need assistance setting up an online account', '2026-05-12'),
+(6, 11, 5, 'Can you recommend books similar to Dune?', '2026-06-18'),
+(7, 13, 1, 'Question about overdue fines on my account', '2026-07-01'),
+(8, 15, 8, 'Looking for children''s books for a 5-year-old', '2026-07-15'),
+(9, 17, 2, 'Need help accessing the online e-book catalog', '2026-07-25'),
+(10, 19, 5, 'Where is the local history section located?', '2026-08-01');
