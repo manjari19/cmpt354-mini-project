@@ -1,196 +1,280 @@
 -- Library DB Schema
--- Will define all the tables, constraints, and triggers for the library system
 
---to ensure that foreign key constraints are enforced
 PRAGMA foreign_keys = ON;
 
---creating table Members
 CREATE TABLE Members (
     MemberID INTEGER PRIMARY KEY AUTOINCREMENT,
     Name TEXT NOT NULL,
-    Address TEXT,
-    DateOfBirth DATE NOT NULL,
-    DateOfRegistration DATE NOT NULL
+    Address TEXT NOT NULL,
+    DateBirth DATE NOT NULL,
+    DateRegistration DATE NOT NULL
+        CHECK (DateBirth < DateRegistration)
 );
 
---creating Items 
 CREATE TABLE Items (
     ItemID INTEGER PRIMARY KEY AUTOINCREMENT,
     Name TEXT NOT NULL,
     Author TEXT NOT NULL,
     Publisher TEXT NOT NULL,
-    DateOfPublication DATE NOT NULL,
-    Category TEXT NOT NULL
+    DatePublication DATE NOT NULL,
+    Category TEXT NOT NULL 
+        CHECK ( Category IN  (
+            'Print Book',
+            'Online Book',
+            'Magazine',
+            'Scientific Journal',
+            'Record',
+            'Audiobook',
+            'DVD',
+            'Other'
+            )  
+        )
 );
 
---creating Copies (needs to reference Items)
 CREATE TABLE Copies (
     CopyID INTEGER PRIMARY KEY AUTOINCREMENT,
     ItemID INTEGER NOT NULL,
-    DateOfAcquisition DATE NOT NULL,
-    FOREIGN KEY (ItemID) REFERENCES Items(ItemID)
+    DateAcquisition DATE NOT NULL,
+    FOREIGN KEY (ItemID) 
+        REFERENCES Items(ItemID)
+        ON UPDATE CASCADE 
+        ON DELETE RESTRICT
 );
 
---creating Holds (needs to reference Members and Items)
 CREATE TABLE Holds (
     MemberID INTEGER NOT NULL,
     ItemID INTEGER NOT NULL,
-    DateOfHold DATE NOT NULL,
-    DateOfReady DATE,
+    DateHold DATE NOT NULL,
+    DateReady DATE,
+    
+    CHECK (DateReady IS NULL OR DateReady >= DateHold),
+
     PRIMARY KEY (MemberID, ItemID),
-    FOREIGN KEY (MemberID) REFERENCES Members(MemberID),
-    FOREIGN KEY (ItemID) REFERENCES Items(ItemID)
+    FOREIGN KEY (MemberID) 
+        REFERENCES Members(MemberID)
+        ON UPDATE CASCADE
+        ON DELETE CASCADE,
+    FOREIGN KEY (ItemID)
+        REFERENCES Items(ItemID) 
+        ON UPDATE CASCADE
+        ON DELETE CASCADE
 );
 
---creating Borrows (needs to reference Members and Copies)
---modified extension to be either 0, 7, or 14 days
 CREATE TABLE Borrows (
-    BorrowID INTEGER PRIMARY KEY,
+    BorrowID INTEGER PRIMARY KEY AUTOINCREMENT,
     MemberID INTEGER NOT NULL,
     CopyID INTEGER NOT NULL,
-    DateOfCheckout DATE NOT NULL,
-    DateOfReturn DATE,
-    Extension INTEGER NOT NULL DEFAULT 0 CHECK (Extension IN (0, 7, 14)),
-    FOREIGN KEY (MemberID) REFERENCES Members(MemberID),
-    FOREIGN KEY (CopyID) REFERENCES Copies(CopyID)
+    DateCheckout DATE NOT NULL,
+    DateReturn DATE,
+    Extension INTEGER NOT NULL 
+        DEFAULT 0 
+        CHECK (Extension IN (0, 7, 14)),
+
+    CHECK (DateReturn IS NULL OR DateReturn >= DateCheckout),
+
+    FOREIGN KEY (MemberID)
+        REFERENCES Members(MemberID) 
+        ON UPDATE CASCADE 
+        ON DELETE RESTRICT,
+    FOREIGN KEY (CopyID)
+        REFERENCES Copies(CopyID) 
+        ON UPDATE CASCADE
+        ON DELETE RESTRICT
+
 );
 
---creating FutureAcquisitions
 CREATE TABLE FutureAcquisitions (
-    FutureID INTEGER PRIMARY KEY,
+    FutureID INTEGER PRIMARY KEY AUTOINCREMENT,
     Name TEXT NOT NULL,
     Author TEXT NOT NULL,
     Publisher TEXT NOT NULL,
-    DateOfPublication DATE NOT NULL,
-    Category TEXT NOT NULL,
+    DatePublication DATE NOT NULL,
+    Category TEXT NOT NULL
+        CHECK ( Category IN  (
+            'Print Book',
+            'Online Book',
+            'Magazine',
+            'Scientific Journal',
+            'Record',
+            'Audiobook',
+            'DVD',
+            'Other'
+            )  
+        ), 
     Price REAL NOT NULL
+        CHECK (Price >= 0)
 );
 
---creating Donations
 CREATE TABLE Donations (
     CopyID INTEGER PRIMARY KEY,
     MemberID INTEGER NOT NULL,
-    DateOfDonation DATE NOT NULL,
-    FOREIGN KEY (CopyID) REFERENCES Copies(CopyID),
-    FOREIGN KEY (MemberID) REFERENCES Members(MemberID)
+    DateDonation DATE NOT NULL,
+    FOREIGN KEY (CopyID) 
+        REFERENCES Copies(CopyID)
+        ON UPDATE CASCADE 
+        ON DELETE CASCADE,
+    FOREIGN KEY (MemberID)
+        REFERENCES Members(MemberID) 
+        ON UPDATE CASCADE 
+        ON DELETE RESTRICT
 );
 
---creating Employees
 CREATE TABLE Employees (
     EmployeeID INTEGER PRIMARY KEY AUTOINCREMENT,
     Name TEXT NOT NULL,
-    Address TEXT,
+    Address TEXT NOT NULL,
     Department TEXT NOT NULL,
     JobTitle TEXT NOT NULL,
-    Salary REAL NOT NULL,
-    DateOfHire DATE NOT NULL
+    Salary REAL NOT NULL
+        CHECK (Salary > 0),
+    DateHire DATE NOT NULL
 );
---creating Volunteers (needs to reference Members)
+
 CREATE TABLE Volunteers (
     MemberID INTEGER PRIMARY KEY,
-    FOREIGN KEY (MemberID) REFERENCES Members(MemberID)
+    FOREIGN KEY (MemberID) 
+        REFERENCES Members(MemberID)
+        ON UPDATE CASCADE 
+        ON DELETE CASCADE
 );
 
---creating Rooms
 CREATE TABLE Rooms (
     RoomID INTEGER PRIMARY KEY AUTOINCREMENT,
-    Capacity INTEGER NOT NULL,
-    EquipmentDescription TEXT
+    Capacity INTEGER NOT NULL
+        CHECK (Capacity > 0),
+    EquipmentDescription TEXT NOT NULL
 );
 
---creating Events (needs to reference Rooms)
 CREATE TABLE Events (
-    EventID INTEGER PRIMARY KEY,
+    EventID INTEGER PRIMARY KEY AUTOINCREMENT,
     Title TEXT NOT NULL,
     RoomID INTEGER NOT NULL,
     Date DATE NOT NULL,
     StartTime TIME NOT NULL,
-    EndTime TIME NOT NULL,
-    Capacity INTEGER NOT NULL,
-    Type TEXT NOT NULL,
-    RecommendedMinAge INTEGER NOT NULL,
-    FOREIGN KEY (RoomID) REFERENCES Rooms(RoomID),
-    UNIQUE (RoomID, Date, StartTime), --referencing BCNF candidate key
-    UNIQUE (RoomID, Date, EndTime) ----referencing BCNF candidate key
+    EndTime TIME NOT NULL, 
+    Capacity INTEGER NOT NULL
+        CHECK (Capacity > 0),
+    Type TEXT NOT NULL 
+        CHECK ( Type IN (
+            'Book Club',
+            'Book-Related Event',
+            'Art Show',
+            'Film Screening',
+            'Workshop',
+            'Author Talk',
+            'Storytime',
+            'Other'
+        )
+    ),
+    RecommendedMinAge INTEGER NOT NULL
+        DEFAULT 0
+        CHECK (RecommendedMinAge >= 0),
+
+    CHECK (EndTime > StartTime),
+
+    FOREIGN KEY (RoomID)
+        REFERENCES Rooms(RoomID) 
+        ON UPDATE CASCADE 
+        ON DELETE RESTRICT,
+    UNIQUE (RoomID, Date, StartTime), 
+    UNIQUE (RoomID, Date, EndTime)
 );
 
---creating Sign-Ups (needs to reference Events and Members)
 CREATE TABLE SignUps (
     EventID INTEGER NOT NULL,
     MemberID INTEGER NOT NULL,
-    DateOfSignup DATE NOT NULL,
+    DateSignup DATE NOT NULL,
     PRIMARY KEY (EventID, MemberID),
-    FOREIGN KEY (EventID) REFERENCES Events(EventID),
-    FOREIGN KEY (MemberID) REFERENCES Members(MemberID)
+    FOREIGN KEY (EventID)
+        REFERENCES Events(EventID)
+        ON UPDATE CASCADE 
+        ON DELETE CASCADE,
+    FOREIGN KEY (MemberID) 
+        REFERENCES Members(MemberID)
+        ON UPDATE CASCADE 
+        ON DELETE CASCADE
 );
 
---creating EventStaffing (needs to reference Events and Employees)
 CREATE TABLE EventStaffing (
     EventID INTEGER NOT NULL,
     EmployeeID INTEGER NOT NULL,
     PRIMARY KEY (EventID, EmployeeID),
-    FOREIGN KEY (EventID) REFERENCES Events(EventID),
-    FOREIGN KEY (EmployeeID) REFERENCES Employees(EmployeeID)
+    FOREIGN KEY (EventID) 
+        REFERENCES Events(EventID) 
+        ON UPDATE CASCADE 
+        ON DELETE CASCADE,
+    FOREIGN KEY (EmployeeID) 
+        REFERENCES Employees(EmployeeID)
+        ON UPDATE CASCADE
+        ON DELETE CASCADE
 );
 
---creating EventVolunteering (needs to reference Events and Volunteers)
 CREATE TABLE EventVolunteering (
     EventID INTEGER NOT NULL,
     MemberID INTEGER NOT NULL,
     Role TEXT NOT NULL,
     PRIMARY KEY (EventID, MemberID),
-    FOREIGN KEY (EventID) REFERENCES Events(EventID),
-    FOREIGN KEY (MemberID) REFERENCES Volunteers(MemberID)
+    FOREIGN KEY (EventID) 
+        REFERENCES Events(EventID) 
+        ON UPDATE CASCADE 
+        ON DELETE CASCADE,
+    FOREIGN KEY (MemberID) 
+        REFERENCES Volunteers(MemberID) 
+        ON UPDATE CASCADE 
+        ON DELETE CASCADE
 );
 
---creating AssistanceRequests (needs to reference Members and Employees)
 CREATE TABLE AssistanceRequests (
-    AssistID INTEGER PRIMARY KEY,
+    AssistID INTEGER PRIMARY KEY AUTOINCREMENT,
     MemberID INTEGER NOT NULL,
     EmployeeID INTEGER NOT NULL,
     RequestText TEXT NOT NULL,
-    DateOfSubmission DATE NOT NULL,
-    FOREIGN KEY (MemberID) REFERENCES Members(MemberID),
-    FOREIGN KEY (EmployeeID) REFERENCES Employees(EmployeeID)
+    DateSubmission DATE NOT NULL,
+    FOREIGN KEY (MemberID) 
+        REFERENCES Members(MemberID)
+        ON UPDATE CASCADE
+        ON DELETE CASCADE,
+    FOREIGN KEY (EmployeeID) 
+        REFERENCES Employees(EmployeeID)
+        ON UPDATE CASCADE
+        ON DELETE RESTRICT
 );
 
---creating required triggers
---event capcity cannot exceed room capacity
 CREATE TRIGGER check_room_capacity
 BEFORE INSERT ON Events
 BEGIN
-    SELECT RAISE (ABORT, 'Event capacity exceeds room capacity')
+    SELECT RAISE (ABORT, 'Room Capacity')
     WHERE NEW.Capacity > (SELECT Capacity FROM Rooms WHERE RoomID = NEW.RoomID);
 END;
 
---can't borrow a copy that's already checked out
 CREATE TRIGGER check_copy_availability
 BEFORE INSERT ON Borrows
 BEGIN
-    SELECT RAISE (ABORT, 'Copy is already checked out')
-    WHERE EXISTS (SELECT 1 FROM Borrows WHERE CopyID = NEW.CopyID AND DateOfReturn IS NULL);
+    SELECT RAISE (ABORT, 'Copy Availability.')
+    WHERE EXISTS (SELECT 1 FROM Borrows WHERE CopyID = NEW.CopyID AND DateReturn IS NULL);
 END;
 
---a member cannot have more than 10 active holds at a time
 CREATE TRIGGER check_max_holds
 BEFORE INSERT ON Holds
 BEGIN
-    SELECT RAISE (ABORT, 'Member has reached the maximum number of active holds')
+    SELECT RAISE (ABORT, 'Max Holds')
     WHERE (SELECT COUNT(*) FROM Holds WHERE MemberID = NEW.MemberID) >= 10;
 END;
 
---two events cannot be scheduled in the same room at the same time
 CREATE TRIGGER check_event_overlap
 BEFORE INSERT ON Events
 BEGIN
-    SELECT RAISE (ABORT, 'Event overlaps with another event in the same room')
-    WHERE EXISTS (SELECT 1 FROM Events WHERE RoomID = NEW.RoomID AND Date = NEW.Date AND ((StartTime < NEW.EndTime AND EndTime > NEW.StartTime)));
+    SELECT RAISE (ABORT, 'Event Overlap')
+    WHERE EXISTS (SELECT 1 FROM Events WHERE RoomID = NEW.RoomID 
+        AND Date = NEW.Date
+        AND StartTime < NEW.EndTime 
+        AND EndTime > NEW.StartTime );
 END;
 
---cannot sign up for an event if the event is at full capacity
 CREATE TRIGGER check_signup_capacity
 BEFORE INSERT ON SignUps
 BEGIN
-    SELECT RAISE (ABORT, 'Event is at full capacity')
-    WHERE (SELECT COUNT(*) FROM SignUps WHERE EventID = NEW.EventID) >= (SELECT Capacity FROM Events WHERE EventID = NEW.EventID);
+    SELECT RAISE (ABORT, 'Event is at full capacity.')
+    WHERE (SELECT COUNT(*) FROM SignUps WHERE EventID = NEW.EventID) 
+        >= (SELECT Capacity FROM Events WHERE EventID = NEW.EventID);
 END;
