@@ -3,7 +3,7 @@ from tkinter import messagebox, ttk
 
 from items import find_item, borrow_item, return_item, donate_item
 
-# Anureet's module to be inserted later
+# insert events module later
 try:
     from events import find_event, register_for_event, volunteer, ask_for_help
     EVENTS_AVAILABLE = True
@@ -11,8 +11,7 @@ except ImportError:
     EVENTS_AVAILABLE = False
 
 
-CATEGORIES = ["print book", "online book", "magazine", "scientific journal", "records"]
-
+CATEGORIES = ["Print Book", "Online Book", "Magazine", "Scientific Journal", "Record", "Audiobook", "DVD", "Other"]
 
 def not_implemented():
     messagebox.showinfo("Not available", "This feature isn't wired up yet.")
@@ -169,8 +168,7 @@ def open_ask_for_help_window():
     # TODO
 
 
-# ---------- Main menu ----------
-
+#Main Menu
 import tkinter as tk
 from tkinter import ttk
 
