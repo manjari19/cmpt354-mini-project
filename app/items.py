@@ -2,18 +2,18 @@
 from datetime import date
 import sqlite3
 
-from db import get_connection
+from db import get_connection, error_message
 
 def find_item(search_term):
     conn = get_connection()
     cursor = conn.cursor()
     cursor.execute("""
-        SELECT i.Name, i.Author, i.Category, c.CopyID
+        SELECT i.Name, i.Author, i.Category, c.CopyID,
+            CASE WHEN b.BorrowID IS NULL THEN 'Available' ELSE 'Checked out' END AS Status
         FROM Items i
         JOIN Copies c ON i.ItemID = c.ItemID
         LEFT JOIN Borrows b ON c.CopyID = b.CopyID AND b.DateReturn IS NULL
-        WHERE (i.Name LIKE ? OR i.Category LIKE ?)
-        AND b.CopyID IS NULL
+        WHERE i.Name LIKE ? OR i.Category LIKE ?
         ORDER BY i.Name
     """, (f'%{search_term}%', f'%{search_term}%'))
     results = cursor.fetchall()
@@ -46,15 +46,15 @@ def borrow_item(member_id, copy_id):
             INSERT INTO Borrows (MemberID, CopyID, DateCheckout, DateReturn, Extension)
             VALUES (?, ?, ?, NULL, 0)
         """, (member_id, copy_id, today))
+        borrow_id = cursor.lastrowid
         conn.commit()
-        return True, f'"{item_name}" (Copy ID {copy_id}) borrowed successfully.'
+        cursor.execute("SELECT DueDate FROM BorrowStatus WHERE BorrowID = ?", (borrow_id,))
+        due = cursor.fetchone()["DueDate"]
+        return True, f'"{item_name}" (Copy ID {copy_id}) borrowed. Due {due}.'
     except sqlite3.IntegrityError as e:
-        msg = str(e)
-        if "Copy Availability" in msg:
-            friendly = f'"{item_name}" (Copy ID {copy_id}) is already checked out by another member and can\'t be borrowed until it\'s returned.'
-        else:
-            friendly = msg
-        return False, friendly
+        return False, error_message(e, {
+            "Copy Availability": f'"{item_name}" (Copy ID {copy_id}) is already checked out by another member and can\'t be borrowed until it\'s returned.',
+        })
     finally:
         conn.close()
 
@@ -77,7 +77,12 @@ def return_item(borrow_id):
         today = date.today().isoformat()
         cursor.execute("UPDATE Borrows SET DateReturn = ? WHERE BorrowID = ?", (today, borrow_id))
         conn.commit()
-        return True, f'"{row["Name"]}" (Borrow ID {borrow_id}) marked as returned.'
+        cursor.execute("SELECT Fine FROM BorrowStatus WHERE BorrowID = ?", (borrow_id,))
+        fine = cursor.fetchone()["Fine"]
+        message = f'"{row["Name"]}" (Borrow ID {borrow_id}) marked as returned.'
+        if fine > 0:
+            message += f" Fine owing: ${fine:.2f}."
+        return True, message
     finally:
         conn.close()
 
@@ -106,12 +111,10 @@ def donate_item(member_id, item_name, author, publisher, pub_date, category):
         today = date.today().isoformat()
         cursor.execute("INSERT INTO Copies (ItemID, DateAcquisition) VALUES (?, ?)", (item_id, today))
         copy_id = cursor.lastrowid
-        cursor.execute("INSERT INTO Donations (CopyID, MemberID, DateDonation) VALUES (?, ?, ?)",
-                       (copy_id, member_id, today))
         conn.commit()
         return True, f'"{item_name}" donated successfully (Copy ID {copy_id}).'
     except sqlite3.IntegrityError as e:
         conn.rollback()
-        return False, str(e)
+        return False, error_message(e, {})
     finally:
         conn.close()

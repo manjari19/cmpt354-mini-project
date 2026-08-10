@@ -3,13 +3,7 @@ import tkinter as tk
 from tkinter import ttk
 
 from items import find_item, borrow_item, return_item, donate_item
-
-# insert events module later
-try:
-    from events import find_event, register_for_event, volunteer, ask_for_help
-    EVENTS_AVAILABLE = True
-except ImportError:
-    EVENTS_AVAILABLE = False
+from events import find_event, register_for_event, volunteer, ask_for_help, list_employees
 
 CATEGORIES = ["Print Book", "Online Book", "Magazine", "Scientific Journal", "Record", "Audiobook", "DVD", "Other"]
 
@@ -45,17 +39,14 @@ def themed_toplevel(title, width=380, height=280):
     body.pack(fill="both", expand=True, padx=25, pady=20)
     return win, body, colors
 
-
 def themed_label(parent, text, colors):
     return tk.Label(parent, text=text, font=("Helvetica", 11),
                      bg=colors["bg"], fg=colors["btn_fg"])
-
 
 def themed_entry(parent, colors, width=28):
     return tk.Entry(parent, width=width, font=("Helvetica", 11),
                      bg=colors["btn_bg"], fg=colors["btn_fg"],
                      insertbackground=colors["btn_fg"], relief="flat")
-
 
 def themed_button(parent, text, command, colors):
     return tk.Button(parent, text=text, command=command,
@@ -92,10 +83,6 @@ def show_dialog(parent, kind, title, message):
 
     dlg.wait_window()
 
-def not_implemented():
-    show_dialog(None, "error", "Not Available", "This feature isn't wired up yet.")
-
-# Item windows
 def open_find_item_window():
     win, body, colors = themed_toplevel("Find Item", 500, 440)
 
@@ -118,9 +105,10 @@ def open_find_item_window():
         for row in rows:
             results_box.insert(
                 tk.END,
-                f"CopyID {row['CopyID']} — {row['Name']} by {row['Author']} ({row['Category']})"
+                f"CopyID {row['CopyID']} - {row['Name']} by {row['Author']} ({row['Status']})"
             )
 
+    win.bind("<Return>", lambda event: do_search())
     themed_button(body, "Search", do_search, colors).pack(fill="x")
 
 def open_borrow_item_window():
@@ -148,6 +136,7 @@ def open_borrow_item_window():
         else:
             show_dialog(win, "error", "Borrow Failed", message)
 
+    win.bind("<Return>", lambda event: do_borrow())
     themed_button(body, "Borrow", do_borrow, colors).pack(fill="x")
 
 def open_return_item_window():
@@ -170,6 +159,7 @@ def open_return_item_window():
         else:
             show_dialog(win, "error", "Return Failed", message)
 
+    win.bind("<Return>", lambda event: do_return())
     themed_button(body, "Return", do_return, colors).pack(fill="x")
 
 def open_donate_item_window():
@@ -209,31 +199,141 @@ def open_donate_item_window():
 
     themed_button(body, "Donate", do_donate, colors).pack(fill="x")
 
-# Event windows (needs event.py to be built)
+# Event Windows
 def open_find_event_window():
-    if not EVENTS_AVAILABLE:
-        not_implemented()
-        return
-    # TODO
+    win, body, colors = themed_toplevel("Find Event", 540, 440)
+
+    themed_label(body, "Search (title or type):", colors).pack(pady=(0, 6), anchor="w")
+    search_entry = themed_entry(body, colors, width=40)
+    search_entry.pack(pady=(0, 10), fill="x")
+    search_entry.focus_set()
+
+    results_box = tk.Listbox(body, width=62, height=15, bg=colors["btn_bg"],
+                               fg=colors["btn_fg"], relief="flat",
+                               selectbackground=colors["btn_active"], font=("Helvetica", 10))
+    results_box.pack(pady=(0, 10), fill="both", expand=True)
+
+    def do_search():
+        results_box.delete(0, tk.END)
+        rows = find_event(search_entry.get().strip())
+        if not rows:
+            results_box.insert(tk.END, "No events found.")
+            return
+        for row in rows:
+            seats = "Full" if row["SeatsLeft"] <= 0 else f"{row['SeatsLeft']} seats left"
+            results_box.insert(tk.END, f"Event {row['EventID']}: {row['Title']} ({row['Type']})")
+            results_box.insert(tk.END, f"    {row['Date']}  {row['StartTime']}-{row['EndTime']}"
+                                       f"  Ages {row['RecommendedMinAge']}+  {seats}")
+
+    win.bind("<Return>", lambda event: do_search())
+    themed_button(body, "Search", do_search, colors).pack(fill="x")
 
 def open_register_event_window():
-    if not EVENTS_AVAILABLE:
-        not_implemented()
-        return
-    # TODO
+    win, body, colors = themed_toplevel("Register for Event", 360, 270)
+
+    themed_label(body, "Member ID:", colors).pack(pady=(5, 3), anchor="w")
+    member_entry = themed_entry(body, colors)
+    member_entry.pack(pady=(0, 10), fill="x")
+    member_entry.focus_set()
+
+    themed_label(body, "Event ID:", colors).pack(pady=(5, 3), anchor="w")
+    event_entry = themed_entry(body, colors)
+    event_entry.pack(pady=(0, 15), fill="x")
+
+    def do_register():
+        try:
+            member_id = int(member_entry.get())
+            event_id = int(event_entry.get())
+        except ValueError:
+            show_dialog(win, "error", "Invalid Input", "Member ID and Event ID must be numbers.")
+            return
+        success, message = register_for_event(member_id, event_id)
+        if success:
+            show_dialog(win, "success", "Success", message)
+            win.destroy()
+        else:
+            show_dialog(win, "error", "Registration Failed", message)
+
+    win.bind("<Return>", lambda event: do_register())
+    themed_button(body, "Register", do_register, colors).pack(fill="x")
 
 def open_volunteer_window():
-    if not EVENTS_AVAILABLE:
-        not_implemented()
-        return
-    # TODO
+    win, body, colors = themed_toplevel("Volunteer", 390, 350)
+
+    themed_label(body, "Member ID:", colors).pack(pady=(5, 3), anchor="w")
+    member_entry = themed_entry(body, colors, width=32)
+    member_entry.pack(pady=(0, 10), fill="x")
+    member_entry.focus_set()
+
+    themed_label(body, "Event ID (leave blank to just sign up):", colors).pack(pady=(5, 3), anchor="w")
+    event_entry = themed_entry(body, colors, width=32)
+    event_entry.pack(pady=(0, 10), fill="x")
+
+    themed_label(body, "Role at the event:", colors).pack(pady=(5, 3), anchor="w")
+    role_entry = themed_entry(body, colors, width=32)
+    role_entry.pack(pady=(0, 15), fill="x")
+
+    def do_volunteer():
+        try:
+            member_id = int(member_entry.get())
+            event_id = int(event_entry.get()) if event_entry.get().strip() else None
+        except ValueError:
+            show_dialog(win, "error", "Invalid Input", "Member ID and Event ID must be numbers.")
+            return
+        role = role_entry.get().strip()
+        if event_id and not role:
+            show_dialog(win, "error", "Invalid Input", "Please enter a role for the event.")
+            return
+        success, message = volunteer(member_id, event_id, role)
+        if success:
+            show_dialog(win, "success", "Success", message)
+            win.destroy()
+        else:
+            show_dialog(win, "error", "Volunteer Failed", message)
+
+    win.bind("<Return>", lambda event: do_volunteer())
+    themed_button(body, "Volunteer", do_volunteer, colors).pack(fill="x")
 
 def open_ask_for_help_window():
-    if not EVENTS_AVAILABLE:
-        not_implemented()
-        return
-    # TODO
+    win, body, colors = themed_toplevel("Ask a Librarian", 400, 400)
 
+    themed_label(body, "Member ID:", colors).pack(pady=(5, 3), anchor="w")
+    member_entry = themed_entry(body, colors, width=34)
+    member_entry.pack(pady=(0, 10), fill="x")
+    member_entry.focus_set()
+
+    themed_label(body, "Librarian:", colors).pack(pady=(5, 3), anchor="w")
+    employees = list_employees()
+    labels = [f"{row['EmployeeID']}: {row['Name']}" for row in employees]
+    employee_var = tk.StringVar(value=labels[0])
+    ttk.Combobox(body, textvariable=employee_var, values=labels,
+                 state="readonly").pack(fill="x", pady=(0, 10))
+
+    themed_label(body, "How can we help?", colors).pack(pady=(5, 3), anchor="w")
+    request_box = tk.Text(body, height=6, bg=colors["btn_bg"], fg=colors["btn_fg"],
+                          insertbackground=colors["btn_fg"], relief="flat",
+                          font=("Helvetica", 10), wrap="word")
+    request_box.pack(fill="both", expand=True, pady=(0, 15))
+
+    def do_ask():
+        try:
+            member_id = int(member_entry.get())
+        except ValueError:
+            show_dialog(win, "error", "Invalid Input", "Member ID must be a number.")
+            return
+        request_text = request_box.get("1.0", tk.END).strip()
+        if not request_text:
+            show_dialog(win, "error", "Invalid Input", "Please describe what you need help with.")
+            return
+        employee_id = int(employee_var.get().split(":")[0])
+        success, message = ask_for_help(member_id, employee_id, request_text)
+        if success:
+            show_dialog(win, "success", "Request Sent", message)
+            win.destroy()
+        else:
+            show_dialog(win, "error", "Request Failed", message)
+
+    themed_button(body, "Send Request", do_ask, colors).pack(fill="x")
 
 # Main Menu
 def apply_theme(style, root):

@@ -1,5 +1,5 @@
 -- Library DB Sample Data
-INSERT INTO Members (Name, Address, DateBirth, DateRegistration) VALUES 
+INSERT INTO Members (Name, Address, DateBirth, DateRegistration) VALUES
     ('Alice Johnson', '123 Main St, Cityville', '1990-05-15', '2023-01-10'),
     ('Bob Smith', '456 Oak Ave, Townsville', '1985-09-20', '2023-04-15'),
     ('Charlie Brown', '789 Pine Rd, Villageville', '2000-12-01', '2023-07-20'),
@@ -106,14 +106,14 @@ INSERT INTO Holds (MemberID, ItemID, DateHold, DateReady) VALUES
 
 INSERT INTO Borrows (BorrowID, MemberID, CopyID, DateCheckout, DateReturn, Extension) VALUES
     -- Returned (2023-2026)
-    (1, 1, 1, '2023-02-01', '2023-02-15', 0),
+    (1, 1, 1, '2023-02-01', '2023-03-06', 0),
     (2, 2, 3, '2023-05-10', '2023-05-31', 7),
     (3, 3, 5, '2023-08-20', '2023-09-10', 14),
     (4, 4, 7, '2024-01-15', '2024-02-05', 7),
-    (5, 5, 9, '2024-04-22', '2024-05-06', 0),
+    (5, 5, 9, '2024-04-22', '2024-06-01', 0),
     (6, 6, 11, '2024-07-30', '2024-08-20', 14),
     (7, 7, 13, '2024-10-14', '2024-11-04', 7),
-    (8, 8, 15, '2025-01-08', '2025-01-22', 0),
+    (8, 8, 15, '2025-01-08', '2025-02-10', 0),
     (9, 9, 17, '2025-04-15', '2025-05-06', 14),
     (10, 10, 19, '2025-07-20', '2025-08-03', 0),
     (11, 11, 21, '2025-10-25', '2025-11-15', 7),
@@ -184,13 +184,15 @@ INSERT INTO Employees (Name, Address, Department, JobTitle, Salary, DateHire) VA
 
 INSERT INTO Volunteers (MemberID) VALUES
     (2),
-    (4), 
-    (6), 
-    (8), 
-    (10), 
-    (12), 
-    (14), 
-    (16);
+    (4),
+    (6),
+    (8),
+    (10),
+    (12),
+    (14),
+    (16),
+    (18),
+    (20);
 
 INSERT INTO Rooms (Capacity, EquipmentDescription) VALUES
     (50, 'Projector, Sound System'),
@@ -198,7 +200,11 @@ INSERT INTO Rooms (Capacity, EquipmentDescription) VALUES
     (80, 'Stage, Sound System, Lighting'),
     (20, 'Standard Seating'),
     (40, 'Projector'),
-    (60, 'Sound System, Seating for 60');
+    (60, 'Sound System, Seating for 60'),
+    (25, 'Whiteboard, Standard Seating'),
+    (100, 'Stage, Sound System, Lighting, Projector'),
+    (15, 'Study Table, Whiteboard'),
+    (35, 'Projector, Sound System');
 
 INSERT INTO Events (Title, RoomID, Date, StartTime, EndTime, Capacity, Type, RecommendedMinAge) VALUES
     ('Mystery Book Club Meeting', 1, '2026-08-15', '18:00', '19:30', 25, 'Book Club', 12),
@@ -215,61 +221,61 @@ INSERT INTO Events (Title, RoomID, Date, StartTime, EndTime, Capacity, Type, Rec
     ('Photography Exhibition', 3, '2026-10-20', '10:00', '16:00', 55, 'Art Show', 0);
 
 INSERT INTO SignUps (EventID, MemberID, DateSignup) VALUES
-    (1, 1, '2026-07-20'), 
-    (1, 3, '2026-07-25'), 
+    (1, 1, '2026-07-20'),
+    (1, 3, '2026-07-25'),
     (1, 5, '2026-08-01'),
-    (2, 2, '2026-07-28'), 
+    (2, 2, '2026-07-28'),
     (2, 4, '2026-08-05'),
-    (3, 6, '2026-08-10'), 
-    (3, 7, '2026-08-15'), 
+    (3, 6, '2026-08-10'),
+    (3, 7, '2026-08-15'),
     (3, 8, '2026-08-20'),
-    (4, 9, '2026-08-01'), 
+    (4, 9, '2026-08-01'),
     (4, 10, '2026-08-10'),
-    (5, 11, '2026-08-15'), 
+    (5, 11, '2026-08-15'),
     (5, 12, '2026-08-20'),
-    (6, 13, '2026-07-15'), 
-    (6, 14, '2026-07-20'), 
+    (6, 13, '2026-07-15'),
+    (6, 14, '2026-07-20'),
     (6, 15, '2026-07-25'),
-    (7, 16, '2026-08-25'), 
+    (7, 16, '2026-08-25'),
     (7, 17, '2026-09-01'),
-    (8, 18, '2026-09-05'), 
+    (8, 18, '2026-09-05'),
     (8, 19, '2026-09-10'),
-    (9, 20, '2026-08-20'), 
+    (9, 20, '2026-08-20'),
     (9, 21, '2026-08-25'),
-    (10, 22, '2026-09-01'), 
+    (10, 22, '2026-09-01'),
     (10, 1, '2026-09-05'),
-    (11, 2, '2026-09-15'), 
+    (11, 2, '2026-09-15'),
     (11, 3, '2026-09-20'),
-    (12, 4, '2026-09-25'), 
-    (12, 5, '2026-09-28'), 
+    (12, 4, '2026-09-25'),
+    (12, 5, '2026-09-28'),
     (12, 6, '2026-10-01');
 
 INSERT INTO EventStaffing (EventID, EmployeeID) VALUES
-    (1, 1), 
-    (2, 2), 
-    (3, 3), 
-    (4, 2), 
-    (5, 7), 
+    (1, 1),
+    (2, 2),
+    (3, 3),
+    (4, 2),
+    (5, 7),
     (6, 7),
-    (7, 3), 
-    (8, 3), 
-    (9, 1), 
-    (10, 6), 
-    (11, 2), 
+    (7, 3),
+    (8, 3),
+    (9, 1),
+    (10, 6),
+    (11, 2),
     (12, 3);
 
 INSERT INTO EventVolunteering (EventID, MemberID, Role) VALUES
-    (1, 2, 'Greeter'), 
-    (2, 4, 'Setup'), 
-    (3, 6, 'Greeter'), 
+    (1, 2, 'Greeter'),
+    (2, 4, 'Setup'),
+    (3, 6, 'Greeter'),
     (3, 8, 'Setup'),
-    (4, 10, 'Ticket Check'), 
-    (5, 12, 'Greeter'), 
+    (4, 10, 'Ticket Check'),
+    (5, 12, 'Greeter'),
     (6, 14, 'Setup'),
-    (7, 16, 'Greeter'), 
-    (8, 2, 'Cleanup'), 
+    (7, 16, 'Greeter'),
+    (8, 2, 'Cleanup'),
     (9, 4, 'Greeter'),
-    (10, 6, 'Setup'), 
+    (10, 6, 'Setup'),
     (11, 8, 'Greeter');
 
 INSERT INTO AssistanceRequests (MemberID, EmployeeID, RequestText, DateSubmission) VALUES
