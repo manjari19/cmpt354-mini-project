@@ -4,7 +4,6 @@ import sqlite3
 
 from db import get_connection
 
-
 def find_item(search_term):
     conn = get_connection()
     cursor = conn.cursor()
@@ -21,7 +20,6 @@ def find_item(search_term):
     conn.close()
     return results
 
-
 def _get_item_name_for_copy(cursor, copy_id):
     cursor.execute("""
         SELECT i.Name FROM Copies c
@@ -30,7 +28,6 @@ def _get_item_name_for_copy(cursor, copy_id):
     """, (copy_id,))
     row = cursor.fetchone()
     return row["Name"] if row else None
-
 
 def borrow_item(member_id, copy_id):
     conn = get_connection()
@@ -61,7 +58,6 @@ def borrow_item(member_id, copy_id):
     finally:
         conn.close()
 
-
 def return_item(borrow_id):
     conn = get_connection()
     cursor = conn.cursor()
@@ -84,7 +80,6 @@ def return_item(borrow_id):
         return True, f'"{row["Name"]}" (Borrow ID {borrow_id}) marked as returned.'
     finally:
         conn.close()
-
 
 def donate_item(member_id, item_name, author, publisher, pub_date, category):
     conn = get_connection()

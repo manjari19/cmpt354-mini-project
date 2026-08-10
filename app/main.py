@@ -11,9 +11,7 @@ try:
 except ImportError:
     EVENTS_AVAILABLE = False
 
-
 CATEGORIES = ["Print Book", "Online Book", "Magazine", "Scientific Journal", "Record", "Audiobook", "DVD", "Other"]
-
 
 # Theme colors
 LIGHT = {
@@ -26,12 +24,9 @@ DARK = {
     "section_fg": "#a89f92", "btn_bg": "#332f2a", "btn_fg": "#f5f2ed",
     "btn_active": "#45403a",
 }
-
 theme = {"mode": "light"}
 
-
 # Shared themed widget helpers (used by every popup window below)
-
 def themed_toplevel(title, width=380, height=280):
     colors = LIGHT if theme["mode"] == "light" else DARK
     win = tk.Toplevel()
@@ -68,7 +63,6 @@ def themed_button(parent, text, command, colors):
                       fg=colors["btn_fg"], activebackground=colors["btn_active"],
                       relief="flat", cursor="hand2", height=1)
 
-
 def show_dialog(parent, kind, title, message):
     """kind: 'success' or 'error' — themed replacement for tkinter.messagebox"""
     colors = LIGHT if theme["mode"] == "light" else DARK
@@ -98,13 +92,10 @@ def show_dialog(parent, kind, title, message):
 
     dlg.wait_window()
 
-
 def not_implemented():
     show_dialog(None, "error", "Not Available", "This feature isn't wired up yet.")
 
-
 # Item windows
-
 def open_find_item_window():
     win, body, colors = themed_toplevel("Find Item", 500, 440)
 
@@ -131,7 +122,6 @@ def open_find_item_window():
             )
 
     themed_button(body, "Search", do_search, colors).pack(fill="x")
-
 
 def open_borrow_item_window():
     win, body, colors = themed_toplevel("Borrow Item", 360, 260)
@@ -160,7 +150,6 @@ def open_borrow_item_window():
 
     themed_button(body, "Borrow", do_borrow, colors).pack(fill="x")
 
-
 def open_return_item_window():
     win, body, colors = themed_toplevel("Return Item", 340, 220)
 
@@ -182,7 +171,6 @@ def open_return_item_window():
             show_dialog(win, "error", "Return Failed", message)
 
     themed_button(body, "Return", do_return, colors).pack(fill="x")
-
 
 def open_donate_item_window():
     win, body, colors = themed_toplevel("Donate Item", 400, 480)
@@ -221,7 +209,6 @@ def open_donate_item_window():
 
     themed_button(body, "Donate", do_donate, colors).pack(fill="x")
 
-
 # Event windows (needs event.py to be built)
 def open_find_event_window():
     if not EVENTS_AVAILABLE:
@@ -249,7 +236,6 @@ def open_ask_for_help_window():
 
 
 # Main Menu
-
 def apply_theme(style, root):
     colors = LIGHT if theme["mode"] == "light" else DARK
     root.configure(bg=colors["bg"])
@@ -263,7 +249,6 @@ def apply_theme(style, root):
     style.configure("Toggle.TButton", background=colors["header_bg"], foreground=colors["header_fg"],
                      font=("Helvetica", 10), borderwidth=0)
     style.map("Toggle.TButton", background=[("active", colors["header_bg"])])
-
 
 def main():
     root = tk.Tk()
@@ -314,7 +299,6 @@ def main():
 
     apply_theme(style, root)
     root.mainloop()
-
 
 if __name__ == "__main__":
     main()
