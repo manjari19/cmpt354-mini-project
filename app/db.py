@@ -7,9 +7,16 @@ def get_connection():
     conn = sqlite3.connect(db_path)
     conn.execute("PRAGMA foreign_keys = ON")
     conn.row_factory = sqlite3.Row
+    return conn
+
+def cleanup_expired_holds():
+    """Drop holds that expired more than 14 days ago. Run once at startup rather
+    than on every get_connection() call, since it's a write that isn't needed
+    for read-heavy calls like find_item."""
+    conn = get_connection()
     conn.execute("DELETE FROM Holds WHERE julianday('now', 'localtime') - julianday(DateReady) > 14")
     conn.commit()
-    return conn
+    conn.close()
 
 def error_message(error, messages):
     """Map a sqlite3 error to a friendlier message by matching substrings of its text."""

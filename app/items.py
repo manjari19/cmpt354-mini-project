@@ -112,6 +112,7 @@ def place_hold(member_id, item_id):
     except sqlite3.IntegrityError as e:
         return False, error_message(e, {
             "Max Holds": f"Member {member_id} already has the maximum of 10 holds.",
+            "UNIQUE constraint failed": f"Member {member_id} already has a hold on \"{item_name}\".",
         })
     finally:
         conn.close()
