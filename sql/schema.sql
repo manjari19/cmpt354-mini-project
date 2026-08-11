@@ -161,7 +161,7 @@ CREATE TABLE Events (
         CHECK (Date IS date(Date)),
     StartTime TIME NOT NULL
         CHECK (StartTime IS strftime('%H:%M', StartTime)),
-    EndTime TIME NOT NULL,
+    EndTime TIME NOT NULL
         CHECK (EndTime IS strftime('%H:%M', EndTime)),
     Capacity INTEGER NOT NULL
         CHECK (Capacity > 0),
