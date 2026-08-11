@@ -2,7 +2,7 @@
 import tkinter as tk
 from tkinter import ttk
 
-from items import find_item, borrow_item, return_item, donate_item
+from items import find_item, borrow_item, return_item, donate_item, place_hold
 from events import find_event, register_for_event, volunteer, ask_for_help, list_employees
 
 CATEGORIES = ["Print Book", "Online Book", "Magazine", "Scientific Journal", "Record", "Audiobook", "DVD", "Other"]
@@ -105,7 +105,7 @@ def open_find_item_window():
         for row in rows:
             results_box.insert(
                 tk.END,
-                f"CopyID {row['CopyID']} - {row['Name']} by {row['Author']} ({row['Status']})"
+                f"ItemID {row['ItemID']} / CopyID {row['CopyID']} - {row['Name']} by {row['Author']} ({row['Status']})"
             )
 
     win.bind("<Return>", lambda event: do_search())
@@ -161,6 +161,34 @@ def open_return_item_window():
 
     win.bind("<Return>", lambda event: do_return())
     themed_button(body, "Return", do_return, colors).pack(fill="x")
+
+def open_place_hold_window():
+    win, body, colors = themed_toplevel("Place Hold", 360, 260)
+
+    themed_label(body, "Member ID:", colors).pack(pady=(5, 3), anchor="w")
+    member_entry = themed_entry(body, colors)
+    member_entry.pack(pady=(0, 10), fill="x")
+    member_entry.focus_set()
+
+    themed_label(body, "Item ID:", colors).pack(pady=(5, 3), anchor="w")
+    item_entry = themed_entry(body, colors)
+    item_entry.pack(pady=(0, 15), fill="x")
+
+    def do_hold():
+        try:
+            member_id = int(member_entry.get())
+            item_id = int(item_entry.get())
+        except ValueError:
+            show_dialog(win, "error", "Invalid Input", "Member ID and Item ID must be numbers.")
+            return
+        success, message = place_hold(member_id, item_id)
+        if success:
+            show_dialog(win, "success", "Success", message)
+            win.destroy()
+        else:
+            show_dialog(win, "error", "Hold Failed", message)
+    win.bind("<Return>", lambda event: do_hold())
+    themed_button(body, "Place Hold", do_hold, colors).pack(fill="x")
 
 def open_donate_item_window():
     win, body, colors = themed_toplevel("Donate Item", 400, 480)
@@ -386,6 +414,7 @@ def main():
     nav_button("Find Item", open_find_item_window)
     nav_button("Borrow Item", open_borrow_item_window)
     nav_button("Return Item", open_return_item_window)
+    nav_button("Place Hold", open_place_hold_window)
     nav_button("Donate Item", open_donate_item_window)
 
     section_label("▪  EVENTS & COMMUNITY")

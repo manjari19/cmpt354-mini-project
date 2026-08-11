@@ -8,7 +8,7 @@ def find_item(search_term):
     conn = get_connection()
     cursor = conn.cursor()
     cursor.execute("""
-        SELECT i.Name, i.Author, i.Category, c.CopyID,
+        SELECT i.ItemID, i.Name, i.Author, i.Category, c.CopyID,
             CASE WHEN b.BorrowID IS NULL THEN 'Available' ELSE 'Checked out' END AS Status
         FROM Items i
         JOIN Copies c ON i.ItemID = c.ItemID
@@ -85,6 +85,34 @@ def return_item(borrow_id):
         return True, message
     except sqlite3.Error:
         return False, "Could not reach the database. Please try again."
+    finally:
+        conn.close()
+
+def place_hold(member_id, item_id):
+    conn = get_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute("SELECT 1 FROM Members WHERE MemberID = ?", (member_id,))
+        if not cursor.fetchone():
+            return False, f"No member found with Member ID {member_id}."
+
+        cursor.execute("SELECT Name FROM Items WHERE ItemID = ?", (item_id,))
+        row = cursor.fetchone()
+        if not row:
+            return False, f"No item found with Item ID {item_id}."
+        item_name = row["Name"]
+
+        today = date.today().isoformat()
+        cursor.execute("""
+            INSERT INTO Holds (MemberID, ItemID, DateHold, DateReady)
+            VALUES (?, ?, ?, NULL)
+        """, (member_id, item_id, today))
+        conn.commit()
+        return True, f'Hold placed on "{item_name}" for Member {member_id}.'
+    except sqlite3.IntegrityError as e:
+        return False, error_message(e, {
+            "Max Holds": f"Member {member_id} already has the maximum of 10 holds.",
+        })
     finally:
         conn.close()
 
