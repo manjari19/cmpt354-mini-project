@@ -21,7 +21,7 @@ def find_event(search_term):
 def list_employees():
     conn = get_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT EmployeeID, Name FROM Employees ORDER BY Name")
+    cursor.execute("SELECT EmployeeID, Name FROM Employees ORDER BY EmployeeID")
     results = cursor.fetchall()
     conn.close()
     return results
