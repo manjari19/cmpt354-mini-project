@@ -6,8 +6,10 @@ CREATE TABLE Members (
     MemberID INTEGER PRIMARY KEY AUTOINCREMENT,
     Name TEXT NOT NULL,
     Address TEXT NOT NULL,
-    DateBirth DATE NOT NULL,
+    DateBirth DATE NOT NULL
+        CHECK (DateBirth IS date(DateBirth)),
     DateRegistration DATE NOT NULL
+        CHECK (DateRegistration IS date(DateRegistration))
         CHECK (DateBirth < DateRegistration)
 );
 
@@ -16,7 +18,8 @@ CREATE TABLE Items (
     Name TEXT NOT NULL,
     Author TEXT NOT NULL,
     Publisher TEXT NOT NULL,
-    DatePublication DATE NOT NULL,
+    DatePublication DATE NOT NULL
+        CHECK (DatePublication IS date(DatePublication)),
     Category TEXT NOT NULL
         CHECK (Category IN (
             'Print Book',
@@ -33,7 +36,8 @@ CREATE TABLE Items (
 CREATE TABLE Copies (
     CopyID INTEGER PRIMARY KEY AUTOINCREMENT,
     ItemID INTEGER NOT NULL,
-    DateAcquisition DATE NOT NULL,
+    DateAcquisition DATE NOT NULL
+        CHECK (DateAcquisition IS date(DateAcquisition)),
     FOREIGN KEY (ItemID)
         REFERENCES Items(ItemID)
         ON UPDATE CASCADE
@@ -46,6 +50,8 @@ CREATE TABLE Holds (
     DateHold DATE NOT NULL,
     DateReady DATE,
 
+    CHECK (DateHold IS date(DateHold)),
+    CHECK (DateReady IS date(DateReady)),
     CHECK (DateReady IS NULL OR DateReady >= DateHold),
 
     PRIMARY KEY (MemberID, ItemID),
@@ -69,6 +75,8 @@ CREATE TABLE Borrows (
         DEFAULT 0
         CHECK (Extension IN (0, 7, 14)),
 
+    CHECK (DateCheckout IS date(DateCheckout)),
+    CHECK (DateReturn IS date(DateReturn)),
     CHECK (DateReturn IS NULL OR DateReturn >= DateCheckout),
 
     FOREIGN KEY (MemberID)
@@ -86,7 +94,8 @@ CREATE TABLE FutureAcquisitions (
     Name TEXT NOT NULL,
     Author TEXT NOT NULL,
     Publisher TEXT NOT NULL,
-    DatePublication DATE NOT NULL,
+    DatePublication DATE NOT NULL
+        CHECK (DatePublication IS date(DatePublication)),
     Category TEXT NOT NULL
         CHECK (Category IN (
             'Print Book',
@@ -105,7 +114,8 @@ CREATE TABLE FutureAcquisitions (
 CREATE TABLE Donations (
     CopyID INTEGER PRIMARY KEY,
     MemberID INTEGER NOT NULL,
-    DateDonation DATE NOT NULL,
+    DateDonation DATE NOT NULL
+        CHECK (DateDonation IS date(DateDonation)),
     FOREIGN KEY (CopyID)
         REFERENCES Copies(CopyID)
         ON UPDATE CASCADE
@@ -125,6 +135,7 @@ CREATE TABLE Employees (
     Salary REAL NOT NULL
         CHECK (Salary > 0),
     DateHire DATE NOT NULL
+        CHECK (DateHire IS date(DateHire))
 );
 
 CREATE TABLE Volunteers (
@@ -146,7 +157,8 @@ CREATE TABLE Events (
     EventID INTEGER PRIMARY KEY AUTOINCREMENT,
     Title TEXT NOT NULL,
     RoomID INTEGER NOT NULL,
-    Date DATE NOT NULL,
+    Date DATE NOT NULL
+        CHECK (Date IS date(Date)),
     StartTime TIME NOT NULL,
     EndTime TIME NOT NULL,
     Capacity INTEGER NOT NULL
@@ -179,7 +191,8 @@ CREATE TABLE Events (
 CREATE TABLE SignUps (
     EventID INTEGER NOT NULL,
     MemberID INTEGER NOT NULL,
-    DateSignup DATE NOT NULL,
+    DateSignup DATE NOT NULL
+        CHECK (DateSignup IS date(DateSignup)),
     PRIMARY KEY (EventID, MemberID),
     FOREIGN KEY (EventID)
         REFERENCES Events(EventID)
@@ -225,7 +238,8 @@ CREATE TABLE AssistanceRequests (
     MemberID INTEGER NOT NULL,
     EmployeeID INTEGER NOT NULL,
     RequestText TEXT NOT NULL,
-    DateSubmission DATE NOT NULL,
+    DateSubmission DATE NOT NULL
+        CHECK (DateSubmission IS date(DateSubmission)),
     FOREIGN KEY (MemberID)
         REFERENCES Members(MemberID)
         ON UPDATE CASCADE
@@ -341,6 +355,6 @@ WITH DueDates AS (
 )
 SELECT BorrowID, MemberID, CopyID, DateCheckout, DateReturn, DueDate,
     ROUND(MAX(0,
-        julianday(COALESCE(DateReturn, date('now'))) - julianday(DueDate)
+        julianday(COALESCE(DateReturn, date('now', 'localtime'))) - julianday(DueDate)
     ) * 0.25, 2) AS Fine
 FROM DueDates;

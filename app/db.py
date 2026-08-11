@@ -7,7 +7,7 @@ def get_connection():
     conn = sqlite3.connect(db_path)
     conn.execute("PRAGMA foreign_keys = ON")
     conn.row_factory = sqlite3.Row
-    conn.execute("DELETE FROM Holds WHERE julianday('now') - julianday(DateReady) > 14")
+    conn.execute("DELETE FROM Holds WHERE julianday('now', 'localtime') - julianday(DateReady) > 14")
     conn.commit()
     return conn
 
