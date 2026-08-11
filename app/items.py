@@ -83,6 +83,8 @@ def return_item(borrow_id):
         if fine > 0:
             message += f" Fine owing: ${fine:.2f}."
         return True, message
+    except sqlite3.Error:
+        return False, "Could not reach the database. Please try again."
     finally:
         conn.close()
 
@@ -97,7 +99,9 @@ def donate_item(member_id, item_name, author, publisher, pub_date, category):
         if not item_name.strip():
             return False, "Item name is required."
 
-        cursor.execute("SELECT ItemID FROM Items WHERE Name = ?", (item_name,))
+        cursor.execute(
+            """SELECT ItemID FROM Items WHERE Name = ? AND Author = ? AND Publisher = ? AND DatePublication = ? AND Category = ?""",
+            (item_name, author, publisher, pub_date, category))
         row = cursor.fetchone()
         if row:
             item_id = row["ItemID"]
@@ -111,6 +115,7 @@ def donate_item(member_id, item_name, author, publisher, pub_date, category):
         today = date.today().isoformat()
         cursor.execute("INSERT INTO Copies (ItemID, DateAcquisition) VALUES (?, ?)", (item_id, today))
         copy_id = cursor.lastrowid
+        cursor.execute("INSERT INTO Donations (CopyID, MemberID, DateDonation) VALUES (?, ?, ?)", (copy_id, member_id, today))
         conn.commit()
         return True, f'"{item_name}" donated successfully (Copy ID {copy_id}).'
     except sqlite3.IntegrityError as e:

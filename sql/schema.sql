@@ -37,7 +37,7 @@ CREATE TABLE Copies (
     FOREIGN KEY (ItemID)
         REFERENCES Items(ItemID)
         ON UPDATE CASCADE
-        ON DELETE RESTRICT
+        ON DELETE CASCADE
 );
 
 CREATE TABLE Holds (
@@ -99,7 +99,7 @@ CREATE TABLE FutureAcquisitions (
             'Other'
         )),
     Price REAL NOT NULL
-        CHECK (Price >= 0)
+        CHECK (Price > 0)
 );
 
 CREATE TABLE Donations (
@@ -329,7 +329,8 @@ CREATE TRIGGER check_item_has_copy
 BEFORE DELETE ON Copies
 BEGIN
     SELECT RAISE(ABORT, 'Item Needs A Copy')
-    WHERE (SELECT COUNT(*) FROM Copies WHERE ItemID = OLD.ItemID) <= 1;
+    WHERE EXISTS (SELECT 1 FROM Items WHERE ItemID = OLD.ItemID)
++      AND (SELECT COUNT(*) FROM Copies WHERE ItemID = OLD.ItemID) <= 1;
 END;
 
 CREATE VIEW BorrowStatus AS
