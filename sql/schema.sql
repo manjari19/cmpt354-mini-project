@@ -330,7 +330,7 @@ BEFORE DELETE ON Copies
 BEGIN
     SELECT RAISE(ABORT, 'Item Needs A Copy')
     WHERE EXISTS (SELECT 1 FROM Items WHERE ItemID = OLD.ItemID)
-+      AND (SELECT COUNT(*) FROM Copies WHERE ItemID = OLD.ItemID) <= 1;
+      AND (SELECT COUNT(*) FROM Copies WHERE ItemID = OLD.ItemID) <= 1;
 END;
 
 CREATE VIEW BorrowStatus AS
