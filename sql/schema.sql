@@ -1,5 +1,4 @@
 -- Library DB Schema
-
 PRAGMA foreign_keys = ON;
 
 CREATE TABLE Members (
@@ -341,12 +340,14 @@ BEGIN
             >= (SELECT Capacity FROM Events WHERE EventID = NEW.EventID);
 END;
 
-CREATE TRIGGER check_item_has_copy
-BEFORE DELETE ON Copies
+CREATE TRIGGER delete_item_if_no_copies
+AFTER DELETE ON Copies
 BEGIN
-    SELECT RAISE(ABORT, 'Item Needs A Copy')
-    WHERE EXISTS (SELECT 1 FROM Items WHERE ItemID = OLD.ItemID)
-      AND (SELECT COUNT(*) FROM Copies WHERE ItemID = OLD.ItemID) <= 1;
+    DELETE FROM Items
+    WHERE ItemID = OLD.ItemID
+      AND NOT EXISTS (
+          SELECT 1 FROM Copies WHERE ItemID = OLD.ItemID
+      );
 END;
 
 CREATE VIEW BorrowStatus AS
