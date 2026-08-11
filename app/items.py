@@ -120,6 +120,9 @@ def donate_item(member_id, item_name, author, publisher, pub_date, category):
         return True, f'"{item_name}" donated successfully (Copy ID {copy_id}).'
     except sqlite3.IntegrityError as e:
         conn.rollback()
-        return False, error_message(e, {})
+        return False, error_message(e, {
+            "DatePublication": "Publication date must be a real date in YYYY-MM-DD format.",
+            "Category": "That is not a category the library accepts.",
+        })
     finally:
         conn.close()

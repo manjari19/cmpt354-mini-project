@@ -159,8 +159,10 @@ CREATE TABLE Events (
     RoomID INTEGER NOT NULL,
     Date DATE NOT NULL
         CHECK (Date IS date(Date)),
-    StartTime TIME NOT NULL,
+    StartTime TIME NOT NULL
+        CHECK (StartTime IS strftime('%H:%M', StartTime)),
     EndTime TIME NOT NULL,
+        CHECK (EndTime IS strftime('%H:%M', EndTime)),
     Capacity INTEGER NOT NULL
         CHECK (Capacity > 0),
     Type TEXT NOT NULL
