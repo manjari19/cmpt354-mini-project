@@ -319,7 +319,7 @@ def open_find_item_window():
         for row in rows:
             results_box.insert(
                 tk.END,
-                f"CopyID {row['CopyID']} - {row['Name']} by {row['Author']} ({row['Status']})"
+                f"ItemID {row['ItemID']} / CopyID {row['CopyID']} - {row['Name']} by {row['Author']} ({row['Status']})"
             )
 
     win.bind("<Return>", lambda event: do_search())
