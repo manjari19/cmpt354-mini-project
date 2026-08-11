@@ -333,8 +333,13 @@ BEGIN
 END;
 
 CREATE VIEW BorrowStatus AS
-SELECT BorrowID, MemberID, CopyID, DateCheckout, DateReturn,
-       date(DateCheckout, '+' || (21 + Extension) || ' days') AS DueDate,
-       ROUND(MAX(0, julianday(COALESCE(DateReturn, date('now')))
-                    - julianday(date(DateCheckout, '+' || (21 + Extension) || ' days'))) * 0.25, 2) AS Fine
-FROM Borrows;
+WITH DueDates AS (
+    SELECT BorrowID, MemberID, CopyID, DateCheckout, DateReturn,
+        date(DateCheckout, '+' || (21 + Extension) || ' days') AS DueDate
+    FROM Borrows
+)
+SELECT BorrowID, MemberID, CopyID, DateCheckout, DateReturn, DueDate,
+    ROUND(MAX(0,
+        julianday(COALESCE(DateReturn, date('now'))) - julianday(DueDate)
+    ) * 0.25, 2) AS Fine
+FROM DueDates;
