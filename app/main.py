@@ -281,9 +281,6 @@ def open_volunteer_window():
             show_dialog(win, "error", "Invalid Input", "Member ID and Event ID must be numbers.")
             return
         role = role_entry.get().strip()
-        if event_id and not role:
-            show_dialog(win, "error", "Invalid Input", "Please enter a role for the event.")
-            return
         success, message = volunteer(member_id, event_id, role)
         if success:
             show_dialog(win, "success", "Success", message)
